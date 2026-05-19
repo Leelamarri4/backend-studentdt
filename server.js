@@ -1,30 +1,38 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const User = require("./model/User");
+const userRouter = require('./routes/userRouter')
+const User= require('./model/User')
 const dns = require('dns');
 const bcrypt= require('bcrypt');
-
+const jwt=require('jsonwebtoken');
+const db=require('./config/db');
+require('dotenv').config()
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 //middleware
 app.use(express.json());
+app.use(userRouter);
 //-------------------------- step 2 -------------------------?
-mongoose.connect("mongodb+srv://leelamarri26_db_user:leela123@cluster0.pujvoey.mongodb.net/?appName=Cluster0")
-.then(()=>{
-    console.log("db connected")
-})
+db();
 
-//crete the data post
-app.post("/mobiles/add",async(req,res)=>{
-    try{
-        const user = new User(req.body);
-        await user.save();
-        res.send(user);
-    }catch(err){
-        res.send(err)
+app.use
+
+//login protected midleware
+
+const verifytoken =(req,res,next)=>{
+    const token= req.headers.authorization;
+    if(!token){
+        return res.send("token missing");
     }
-})
+    try{
+        jwt.verify(token,"secretkey");
+        next();
+    }catch(err){
+        console.log("invalid token")
+    }
+}
+
 //To read the data 
 app.get("/",async(req,res)=>{
 try{
@@ -125,6 +133,57 @@ app.post("/register", async(req,res)=>{
 })
 
 
+//LOGIN
+app.post("/login",async(req,res) => {
+    try{
+        const{email,password}=req.body;
+        const user = await User.findOne({email});
+        if(!user){
+            return res.end("user not found");
+        }
+        const token = jwt.sign(
+    {id:user._id},
+    "secretkey",
+    {expiresIn: "1h"}
+   )
+   res.send({
+    message:"login successfully",
+    token
+
+   })
+   const express = require("express");
+const jwt = require("jsonwebtoken");
+
+const app = express();
+
+
+// middleware
+const verifytoken = (req,res,next)=>{
+
+const token = req.headers.authorization;
+
+if(!token){
+    return res.send("token missing");
+}
+
+try{
+
+    jwt.verify(token,"secretkey");
+    next();
+
+}catch(err){
+    res.send("invalid token");
+}
+
+}
+
+
+
+
+    }catch(err){
+        console.log(err)
+    }
+})
 app.listen(4000,()=>{
     console.log("server started")
 })
