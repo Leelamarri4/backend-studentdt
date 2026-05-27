@@ -6,9 +6,11 @@ const getProducts = async (req, res) => {
     try {
 
         // Fetch products from Fake Store API
-        const response = await axios.get(
-            "https://fakestoreapi.com/products"
-        );
+        application.use(
+            cors({
+                origin:"*",
+            })
+        )
 
         // Send products
         res.json(response.data);

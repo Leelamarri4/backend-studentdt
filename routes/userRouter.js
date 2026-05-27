@@ -6,6 +6,6 @@ const {
     getProducts
 } = require("../controller/userController");
 
-router.get("/products", getProducts);
+router.get("/", getProducts);
 
 module.exports = router;
